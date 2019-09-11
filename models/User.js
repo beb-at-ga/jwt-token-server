@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+mongoose.set('useCreateIndex', true);
+
 const userSchema = new mongoose.Schema({
   firstname: {
     type: String,
@@ -8,8 +10,7 @@ const userSchema = new mongoose.Schema({
     minlength: 1
   },
   lastname: {
-    type: String,
-    required: false  
+    type: String
   },
   email: {
     type: String,
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
     validate: {
       validator: (input) => {
-        return /.*@?*\./test(input)
+        return input  // could add validation here
       }
     },
     password: {
@@ -33,6 +34,7 @@ const userSchema = new mongoose.Schema({
 // use bcrypt to hash the password
 // a "lifecycle hook" in mongoose is "presave"
 userSchema.pre('save', function(next) {
+  console.log(this);
   this.password = bcrypt.hashSync(this.password, 12)
   next();
 })
@@ -40,7 +42,7 @@ userSchema.pre('save', function(next) {
 // ensure the password doesn't get sent with the rest of the data
 // to do this, we'll override the toJson functionality to exclude the password
 
-userSchema.set('toJson', {
+userSchema.set('toJSON', {
   transform: (doc, user) => {
     // can whitelist of blacklist returned attribs. this is blacklist.
     delete user.password;
@@ -53,5 +55,5 @@ userSchema.methods.isAuthenticated = function(typedPassword) {
   return bcrypt.compareSync(typedPassword, this.password);
 }
 
-module.exports - mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema);
 
