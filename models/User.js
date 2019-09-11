@@ -21,21 +21,20 @@ const userSchema = new mongoose.Schema({
       validator: (input) => {
         return input  // could add validation here
       }
-    },
-    password: {
-      type: String,
-      required: true,
-      minlength: 8,
-      maxlength: 5000
     }
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 8,
+    maxlength: 5000
   }
-})
+});
 
 // use bcrypt to hash the password
 // a "lifecycle hook" in mongoose is "presave"
 userSchema.pre('save', function(next) {
-  console.log(this);
-  this.password = bcrypt.hashSync(this.password, 12)
+  this.password = bcrypt.hashSync(this.password, 12);
   next();
 })
 
